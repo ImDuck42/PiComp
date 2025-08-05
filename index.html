@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="An image pixel by pixel comparison tool">
+    <meta name="theme-color" content="#6c5ce7">
+    <title>IMG PiComp</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-layer-group"></i>
+                <span>PixelPerfect</span>
+            </div>
+            <nav class="site-nav">
+                <a href="#main-content">Compare</a>
+                <a href="#metadata-section" id="nav-metadata" class="nav-link-hidden">Metadata</a>
+                <a href="#results-section" id="nav-results" class="nav-link-hidden">Results</a>
+                <a id="settings-btn" class="nav-button">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container" id="main-content">
+        <header class="page-header">
+            <h1 class="title">Image Pixel Comparison</h1>
+            <p class="subtitle">Upload two images to compare their pixels, metadata, and properties.</p>
+            <p class="subtitle">Ctrl + v on hover to paste an image from clipboard.</p>
+        </header>
+
+        <main class="main-content">
+            <div class="upload-section">
+                <div class="upload-card">
+                    <div class="upload-area" id="upload1" role="button" tabindex="0" aria-label="Upload first image">
+                        <div class="upload-content">
+                            <i class="fas fa-camera upload-icon"></i>
+                            <p>Drop image 1 here or click to browse</p>
+                            <input type="file" id="file1" accept="image/*" hidden>
+                        </div>
+                        <div class="image-preview" id="preview1" style="display: none;">
+                            <img id="img1" alt="Image 1 Preview">
+                            <button class="remove-btn" id="remove1" aria-label="Remove first image"><i class="fas fa-times"></i></button>
+                            <div class="file-info" id="file-info1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upload-card">
+                    <div class="upload-area" id="upload2" role="button" tabindex="0" aria-label="Upload second image">
+                        <div class="upload-content">
+                            <i class="fas fa-camera upload-icon"></i>
+                            <p>Drop image 2 here or click to browse</p>
+                            <input type="file" id="file2" accept="image/*" hidden>
+                        </div>
+                        <div class="image-preview" id="preview2" style="display: none;">
+                            <img id="img2" alt="Image 2 Preview">
+                            <button class="remove-btn" id="remove2" aria-label="Remove second image"><i class="fas fa-times"></i></button>
+                            <div class="file-info" id="file-info2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metadata-section" id="metadata-section" style="display: none;">
+                <div class="content-card">
+                    <h3><i class="fas fa-info-circle"></i> File Metadata Comparison</h3>
+                    <div id="metadata-content"></div>
+                </div>
+            </div>
+
+            <div class="compare-section">
+                <button class="compare-btn" id="compare-btn" disabled>
+                    <i class="fas fa-search"></i> Compare Images
+                </button>
+            </div>
+
+            <div class="progress-section" id="progress-section" style="display: none;" aria-live="polite">
+                <div class="content-card">
+                    <div class="progress-header">
+                        <h3><i class="fas fa-cog fa-spin"></i> Comparison Progress</h3>
+                        <button class="stop-btn" id="stop-btn">
+                            <i class="fas fa-stop-circle"></i> Stop
+                        </button>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                        <span class="progress-text" id="progress-text">0%</span>
+                    </div>
+                    <div class="progress-details">
+                        <p>Current Position: <span id="current-position">Row 0, Column 0</span></p>
+                        <p>Pixels Processed: <span id="pixels-processed">0</span></p>
+                    </div>
+                    <div class="real-time-similarity">
+                        <h4>Current Similarity</h4>
+                        <div class="similarity-value" id="current-similarity">0.00%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-section" id="results-section" style="display: none;" aria-live="assertive">
+                <div class="content-card">
+                    <h3><i class="fas fa-chart-bar"></i> Comparison Results</h3>
+                    <div class="results-grid">
+                        <div class="result-item">
+                            <div class="result-label">
+                                Overall Similarity
+                                <i class="fas fa-eye diff-icon" id="show-diff-icon" title="Show Pixel Differences" role="button" tabindex="0"></i>
+                            </div>
+                            <div class="result-value similarity-score" id="similarity-score">0%</div>
+                        </div>
+                        <div class="result-item" id="image-dimensions-card" style="display: none;">
+                            <div class="result-label">Compared Dimensions</div>
+                            <div class="result-value" id="image-dimensions">0 × 0</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Total Pixels</div>
+                            <div class="result-value" id="total-pixels">0</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Matching Pixels</div>
+                            <div class="result-value" id="matching-pixels">0</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Different Pixels</div>
+                            <div class="result-value" id="different-pixels">0</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Processing Time</div>
+                            <div class="result-value" id="processing-time">0ms</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>© 2025 ImDuck42 (Starchasm Nyx || @hu7ao). All Rights Reserved ig.</p>
+            <div class="footer-links">
+                <a style="cursor: pointer;" onclick="window.location.href='https://www.yout-ube.com/watch?v=xvFZjo5PgG0'">Legal Stuff</a>
+                <a href="https://imduck42.github.io/PiComp" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Difference Map Modal -->
+    <div id="diff-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content-fullscreen">
+            <div class="modal-header">
+                <h3 id="diff-modal-title"><i class="fas fa-map"></i> Pixel Difference Map</h3>
+                <p>Highlighted pixels represent differences. Use scrollbars to navigate large images.</p>
+                 <button class="modal-close-btn" id="diff-modal-close" aria-label="Close difference map"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body modal-canvas-container">
+                <canvas id="diff-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content-fullscreen">
+            <div class="modal-header">
+                <h3 id="settings-modal-title"><i class="fas fa-sliders-h"></i> Comparison Settings</h3>
+                <p>Fine-tune the comparison engine. Settings are saved and re-applied automatically.</p>
+                 <button class="modal-close-btn" id="settings-modal-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-grid">
+                    <div class="settings-column">
+                        <div class="setting-item">
+                            <label for="threshold-slider">Color Difference Threshold: <span id="threshold-value">0%</span></label>
+                            <p class="setting-description">Pixels are marked as different only if their combined RGB distance exceeds this percentage. Helps ignore minor artifacts.</p>
+                            <input type="range" min="0" max="100" value="15" class="slider" id="threshold-slider">
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="custom-checkbox-container">
+                                <input type="checkbox" id="average-size-checkbox">
+                                <label for="average-size-checkbox">Stretch To Fit (Average Out Size)</label>
+                            </div>
+                            <p class="setting-description">If enabled, the smaller image is stretched (maintaining aspect ratio) to fit the dimensions of the larger image before comparison.</p>
+                        </div>
+                        
+                        <div class="setting-item setting-item-row">
+                            <div>
+                                <label for="diff-color">Difference Highlight</label>
+                                <p class="setting-description">The color for differing pixels on the difference map.</p>
+                                <div class="custom-color-input" role="button" tabindex="0">
+                                    <span class="color-swatch" id="diff-color-swatch"></span>
+                                    <input type="color" id="diff-color" value="#FFFFFF" aria-label="Difference highlight color">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="match-color">Match Highlight</label>
+                                <p class="setting-description">The color for matching pixels on the difference map.</p>
+                                <div class="custom-color-input" role="button" tabindex="0">
+                                    <span class="color-swatch" id="match-color-swatch"></span>
+                                    <input type="color" id="match-color" value="#1F1F3D" aria-label="Match highlight color">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-column">
+                        <div class="setting-item">
+                             <label>Comparison Region (Widest × Highest || Based on image 1)</label>
+                            <p class="setting-description">Define a rectangular region to compare, using percentages of the image dimensions.</p>
+                            <div class="region-visualizer">
+                                <div class="region-preview" id="region-preview">
+                                    <img id="region-preview-image" style="display: none;" alt="Preview for region selection">
+                                    <div class="region-preview-text">Upload Image 1 to see a preview</div>
+                                    <div class="region-box" id="region-box"></div>
+                                </div>
+                            </div>
+                            <div class="region-inputs">
+                                <div class="region-group">
+                                    <label for="region-x1">X1</label><input type="number" id="region-x1" min="0" max="100" step="0.1" value="0"><span>%</span>
+                                </div>
+                                 <div class="region-group">
+                                    <label for="region-y1">Y1</label><input type="number" id="region-y1" min="0" max="100" step="0.1" value="0"><span>%</span>
+                                </div>
+                                 <div class="region-group">
+                                    <label for="region-x2">X2</label><input type="number" id="region-x2" min="0" max="100" step="0.1" value="100"><span>%</span>
+                                </div>
+                                 <div class="region-group">
+                                    <label for="region-y2">Y2</label><input type="number" id="region-y2" min="0" max="100" step="0.1" value="100"><span>%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-settings-btn" class="modal-btn-primary">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

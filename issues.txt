@@ -1,0 +1,1 @@
+- Currently uses Max Width and Height as px for max Area of interest which conflicts with eg 4k but aspect ratio heigh smaller that 1080p images
